@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const mysqlConnection = require('../configurations/db-conf');
+const bcrypt = require("bcrypt");
 
 /*---------------------------------------USUARIOS----------------------------------------*/
 /*Get-usuarios*/
@@ -31,8 +32,11 @@ router.get('/:id', (req, res) => {
 router.post('/', (req, res) => {
     console.log('Insert usuarios')
     let emp = req.body;
-    mysqlConnection.query('insert into usuarios (userName, idDocente, pass, roleId) values (?,?,?,?)',
-        [emp.userName, emp.idDocente, emp.pass, emp.roleId], (err, result) => {
+    bcrypt.hash(emp.pass,8,(error,hash)=>{
+        if(error) throw error;
+
+        mysqlConnection.query('insert into usuarios (userName, idDocente, pass, roleId) values (?,?,?,?)',
+        [emp.userName, emp.idDocente, hash, emp.roleId], (err, result) => {
             if (!err) {
                 console.log(result);
                 res.status(201).send({ message: "created Successfully" });
@@ -41,14 +45,19 @@ router.post('/', (req, res) => {
                 res.send({ err: 'Error' + JSON.stringify(err) });
             }
         })
+    })
+    
 });
 
 /*Update-usuarios*/
 router.put('/:id', (req, res) => {
     console.log('Update usuarios')
     let emp = req.body;
-    mysqlConnection.query('update usuarios set userName=?,idDocente=?, pass=?, roleId=? where id=?',
-        [emp.userName, emp.idDocente, emp.pass, emp.roleId, req.params.id], (err, result) => {
+    bcrypt.hash(emp.pass,8,(error,hash)=>{
+        if(error) throw error;
+
+        mysqlConnection.query('update usuarios set userName=?,idDocente=?, pass=?, roleId=? where id=?',
+        [emp.userName, emp.idDocente, hash, emp.roleId, req.params.id], (err, result) => {
             if (!err) {
                 console.log(result);
                 res.status(202).send({ message: 'Updated Successfully' });
@@ -57,8 +66,10 @@ router.put('/:id', (req, res) => {
                 res.send({ err: 'Error' + JSON.stringify(err) });
             }
         })
-});
 
+    })
+    
+});
 /*Delete-usuarios*/
 router.delete('/:id', (req, res) => {
     console.log('Delete usuarios')
