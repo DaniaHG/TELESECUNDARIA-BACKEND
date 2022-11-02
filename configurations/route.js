@@ -26,6 +26,9 @@ router.use("/materia_alumno", accessEndpointAdmin, require('../controller/materi
 
 router.use("/entrega_tareas", accessEndpointDocente, require('../controller/entrega_tareas'));
 router.use("/tareas", accessEndpointDocente, require('../controller/tareas'));
+router.use("/materias_tareas", accessEndpointDocente, require('../controller/materias_tareas'));
+router.use("/periodos_docente", accessEndpointDocente, require('../controller/periodos_docente'));
+router.use("/alumnos_docente", accessEndpointDocente, require('../controller/alumnos_docente'));
 
 
 module.exports = router;
