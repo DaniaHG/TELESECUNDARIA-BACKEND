@@ -2,12 +2,10 @@ const express = require('express');
 const cors = require('cors');
 const router = require('./configurations/route');
 const auth = require("./security/verifier");
-const morgan = require('morgan');
+
 
 const app = express();
-if (process.env.NODE_ENV !== 'production') {
-    app.use(morgan('common'))
-}
+
 
 app.use(express.json());
 
