@@ -35,7 +35,39 @@ router.post('/', (req, res) => {
         [emp.fecha, emp.nombre, emp.descripcion, emp.materias_id, emp.periodos_id], (err, result) => {
             if (!err) {
                 console.log(result);
-                res.status(201).send({ message: "created Successfully" });
+                
+
+            let sql =  ` select m.nombre, m.id as materia_id, t.descripcion, a.nombre, a.id as alumno_id
+            from tareas t  join materias m on m.id = t.materias_id 
+            join periodos p on p.id = t.periodos_id
+            join materia_alumno ma on m.id = ma.materias_id
+            join alumnos a on ma.alumnos_id = a.id
+            WHERE  t.id = ? and m.docentes_id=?;`
+
+            mysqlConnection.query(sql , [result.insertId, req.user.idDocente], (err, rows, fields) => {
+                if (!err) {
+
+                 
+                    let values = rows.map(row=> (["Pendiente", 0, row.alumno_id, result.insertId]))
+
+ 
+                    mysqlConnection.query('INSERT INTO entrega_tareas (status, calificacion, alumnos_id, tareas_id) VALUES ?;', [values], function (err, result) {
+                       if (!err) {
+                           console.log("Entrega de tareas insertadas: " + result.affectedRows);
+                           res.status(201).send("Created successfully")
+                       }
+                       else{
+                           console.error(err)
+                           res.send("Error "+ err)
+                       }
+
+                    });
+                } else {
+                    console.log(err);
+                    res.send('Error');
+                }
+            })
+
             } else {
                 console.log(err);
                 res.send({ err: 'Error' + JSON.stringify(err) });
